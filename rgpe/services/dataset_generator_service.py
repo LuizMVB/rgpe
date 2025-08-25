@@ -5,41 +5,39 @@ from ..lib.gram_points.GramPoints import write_gram_points
 
 
 def generate_gram_points_dataset() -> None:
-    write_gram_points('./dataset/gram_points.csv', 0, 100000)
+    write_gram_points('/app/dataset/gram_points.csv', 0, 100000)
 
 
 def download_zeta_zeros() -> None:
     """
-    Downloads the Riemann zeta function zeros from a specified URL and saves them as a NumPy array.
+    Faz download dos zeros da função zeta de Riemann e salva em CSV.
     """
     url = "https://www-users.cse.umn.edu/~odlyzko/zeta_tables/zeros1"
     r = requests.get(url)
     r.raise_for_status()
-    zeros = np.fromstring(r.text, sep="\n")
-    zeros = zeros.astype(float)
-    np.save("./dataset/zeta_zeros.npy", zeros)
+    zeros = np.fromstring(r.text, sep="\n").astype(float)
+    df = pd.DataFrame({"zeta_zero": zeros})
+    df.to_csv("/app/dataset/zeta_zeros.csv", index=False)
+    print(f"[OK] Arquivo salvo: dataset/zeta_zeros.csv com {len(zeros)} zeros.")
 
 
-def write_gram_distance_dataset() -> None:
+def write_distances_dataset() -> None:
     """
-    Gera o dataset de distâncias entre os pontos gramaticais e os zeros da função zeta.
+    Gera as disntâncias entre o zero e o ponto de gram.
     """
-    zeros   = np.load("./dataset/zeta_zeros.npy")
-    df_gram = pd.read_csv("./dataset/gram_points.csv")
+    df_zeros = pd.read_csv("/app/dataset/zeta_zeros.csv")
+    df_gram  = pd.read_csv("/app/dataset/gram_points.csv")
+
+    zeros = df_zeros["zeta_zero"].values
     gram_points = df_gram["n-th gram point"].values
 
-    if len(zeros) > len(gram_points) - 1:
-        print("[AVISO] Cortando zeros para casar com g_{n-1}")
-        zeros = zeros[:len(gram_points) - 1]
+    y = zeros - gram_points
 
-    X = gram_points[1:]
-    g_prev = gram_points[:-1]
-    y = zeros - g_prev
-
-    df = pd.DataFrame({
-        "gram_point": X,
-        "distance_to_zero": y
-    })
-
-    df.to_csv("dataset/gram_distance.csv", index=False)
+    df = pd.DataFrame({"distance": y})
+    df.to_csv("/app/dataset/distances.csv", index=False)
     print("[OK] Dataset gerado com shape:", df.shape)
+
+
+def generate_distances_dataset() -> None:
+    download_zeta_zeros()
+    write_distances_dataset()

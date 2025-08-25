@@ -19,7 +19,9 @@ def load_gram_distance_dataset() -> tuple[NDArray[float], NDArray[float]]:
 
 
 def load_40_features_dataset() -> tuple[NDArray[float], NDArray[float]]:
-    df = pd.read_csv("/app/dataset/40_features.csv")
-    X = df.drop(columns=["z_term1_1", "z_term1_2"]).values
-    y = df["z_term1_1"].values
+    df_features = pd.read_csv("/app/dataset/40_features.csv")
+    df_distances = pd.read_csv("/app/dataset/distances.csv")
+    df_distances = df_distances[:df_features.shape[0]]
+    X = df_features.values
+    y = df_distances.iloc[:, 0].values
     return X, y

@@ -5,6 +5,7 @@ from numpy.typing import NDArray
 from sklearn.metrics import r2_score, mean_squared_error
 import time
 import pandas as pd
+import math
 
 
 @dataclass
@@ -12,6 +13,10 @@ class BaseDemo(ABC):
     """Base class for demos."""
 
     results: list[dict[str, float]] = field(default_factory=list[dict[str, float]])
+    best_mse: float = field(default=0.0)
+    best_r2: float = field(default=0.0)
+    best_C: float = field(default=0.0)
+    best_epsilon: float = field(default=0.0)
 
     @abstractmethod
     def run(self) -> None:
@@ -27,6 +32,9 @@ class BaseDemo(ABC):
             epsilon: float,
             C: float
     ) -> None:
+        self.best_mse = -math.inf
+        self.best_r2  = -math.inf
+
         svr = SVR(kernel=kernel, epsilon=epsilon, C=C)
         start_time = time.time()
         svr.fit(X_train, y_train)
@@ -34,6 +42,13 @@ class BaseDemo(ABC):
         end_time = time.time()
         mse = mean_squared_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
+
+        if mse < self.best_mse:
+            self.best_mse = mse
+
+        if r2 > self.best_r2:
+            self.best_r2 = r2
+
         self.results.append({
             "C": C,
             "epsilon": epsilon,
