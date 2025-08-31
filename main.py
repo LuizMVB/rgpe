@@ -1,5 +1,6 @@
 import sys
 from rgpe.services.handle_demo_service import HandleDemoService
+from rgpe.services import dataset_generator_service
 
 
 def main():
@@ -21,4 +22,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    dataset_generator_service.generate_40_features_dataset()
+    # main()

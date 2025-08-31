@@ -1,7 +1,10 @@
 import requests
 import numpy as np
 import pandas as pd
+from typing import List
 from ..lib.gram_points.GramPoints import write_gram_points
+from ..utils import riemann_siegel
+from . import dataset_loader_service
 
 
 def generate_gram_points_dataset() -> None:
@@ -23,7 +26,7 @@ def download_zeta_zeros() -> None:
 
 def write_distances_dataset() -> None:
     """
-    Gera as disntâncias entre o zero e o ponto de gram.
+    Gera as distâncias entre o zero e o ponto de gram.
     """
     df_zeros = pd.read_csv("/app/dataset/zeta_zeros.csv")
     df_gram  = pd.read_csv("/app/dataset/gram_points.csv")
@@ -41,3 +44,32 @@ def write_distances_dataset() -> None:
 def generate_distances_dataset() -> None:
     download_zeta_zeros()
     write_distances_dataset()
+
+
+def _get_features(gram_point: float) -> List[float]:
+    z_val = riemann_siegel.Z(gram_point)
+    cos_terms = riemann_siegel.Z_ten_first_cos_terms(gram_point)
+    sin_terms = riemann_siegel.Z_ten_first_sin_terms(gram_point)
+    return [z_val, *cos_terms, *sin_terms]
+
+
+def generate_40_features_dataset() -> None:
+    gram_points = dataset_loader_service.load_gram_points()
+    features = []
+
+    header = []
+    for n in [1, 2]:
+        header.append(f"z_value_{n}")
+        header += [f"z_cos_{i}_{n}" for i in range(1, 11)]
+        header += [f"z_sin_{i}_{n}" for i in range(1, 10)]
+
+    for index in range(1,len(gram_points)):
+        gram_point_1 = gram_points[index - 1]
+        gram_point_2 = gram_points[index]
+
+        features_1 = _get_features(gram_point_1)
+        features_2 = _get_features(gram_point_2)
+        features.append(features_1 + features_2)
+
+    df_features = pd.DataFrame(features, columns=header)
+    df_features.to_csv("/app/dataset/o_shank.csv", index=False)
