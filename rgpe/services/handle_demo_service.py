@@ -1,6 +1,7 @@
 from ..demos import BaseDemo
 from ..demos.svr_v1_demo import SVRV1Demo
 from ..demos.svr_v2_demo import SVRV2Demo
+from ..demos.svr_v3_demo import SVRV3Demo
 from ..demos.qsvm_pennylane_demo import QSVMPennylaneDemo
 from ..demos.qsvr_qiskit_demo import QSVRQiskitDemo
 from ..demos.base_demo import BaseDemo
@@ -10,6 +11,7 @@ class HandleDemoService:
     demos: dict[str, type[BaseDemo]] = {
         "svr_v1": SVRV1Demo,
         "svr_v2": SVRV2Demo,
+        "svr_v3": SVRV3Demo,
         "qsvm_pennylane": QSVMPennylaneDemo,
         "qsvr_qiskit": QSVRQiskitDemo
     }

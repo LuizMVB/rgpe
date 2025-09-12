@@ -30,3 +30,12 @@ def load_40_features_dataset() -> tuple[NDArray[float], NDArray[float]]:
     X = df_features.values
     y = df_distances.iloc[:, 0].values
     return X, y
+
+
+def load_o_shank_dataset() -> tuple[NDArray[float], NDArray[float]]:
+    df_features = pd.read_csv("/app/dataset/o_shank.csv")
+    df_distances = pd.read_csv("/app/dataset/distances.csv")
+    df_distances = df_distances[:df_features.shape[0]]
+    X = df_features.values
+    y = df_distances.iloc[:, 0].values
+    return X, y

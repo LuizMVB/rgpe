@@ -1,9 +1,9 @@
 import requests
+import mpmath as mp
 import numpy as np
 import pandas as pd
 from typing import List
 from ..lib.gram_points.GramPoints import write_gram_points
-from ..utils import riemann_siegel
 from . import dataset_loader_service
 
 
@@ -46,26 +46,33 @@ def generate_distances_dataset() -> None:
     write_distances_dataset()
 
 
+def _get_header() -> List[str]:
+    header = []
+    for n in [1, 2]:
+        header.append(f"z_value_{n}")
+        header += [f"z_cos_{i}_{n}" for i in range(1, 11)]
+        header += [f"z_sin_{i}_{n}" for i in range(2, 11)]
+    return header
+
+
 def _get_features(gram_point: float) -> List[float]:
-    z_val = riemann_siegel.Z(gram_point)
-    cos_terms = riemann_siegel.Z_ten_first_cos_terms(gram_point)
-    sin_terms = riemann_siegel.Z_ten_first_sin_terms(gram_point)
-    return [z_val, *cos_terms, *sin_terms]
+    features = [mp.siegelz(gram_point)]
+    cos_terms = [mp.cos(mp.siegeltheta(gram_point) - gram_point * mp.ln(n)) / mp.sqrt(n) for n in range(1, 11)]
+    sin_terms = [mp.sin(mp.siegeltheta(gram_point) - gram_point * mp.ln(n)) / mp.sqrt(n) for n in range(2, 11)]
+    return features + cos_terms + sin_terms
 
 
 def generate_40_features_dataset() -> None:
     gram_points = dataset_loader_service.load_gram_points()
     features = []
 
-    header = []
-    for n in [1, 2]:
-        header.append(f"z_value_{n}")
-        header += [f"z_cos_{i}_{n}" for i in range(1, 11)]
-        header += [f"z_sin_{i}_{n}" for i in range(1, 10)]
+    header = _get_header()
 
-    for index in range(1,len(gram_points)):
+    for index in range(1, len(gram_points)):
         gram_point_1 = gram_points[index - 1]
         gram_point_2 = gram_points[index]
+
+        print(f"Gerando para {gram_point_1} e {gram_point_2}")
 
         features_1 = _get_features(gram_point_1)
         features_2 = _get_features(gram_point_2)

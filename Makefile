@@ -1,14 +1,15 @@
 IMAGE=rgpe
+CONTAINER_NAME=rgpe
 PWD=$(shell pwd)
 
 build:
 	docker build -t $(IMAGE) .
 
 bash:
-	docker exec -it $(IMAGE) bash
+	docker exec -it $(CONTAINER_NAME) bash
 
-run:
-	docker run --rm -v "$(PWD)":/app -p 8888:8888 -d --name $(IMAGE) $(IMAGE)
+start:
+	docker run --rm -v "$(PWD)":/app -p 8888:8888 -d --name $(CONTAINER_NAME) $(IMAGE)
 
 stop:
-	docker stop $(IMAGE)
+	docker stop $(CONTAINER_NAME)
