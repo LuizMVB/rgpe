@@ -1,4 +1,3 @@
-from ..demos import BaseDemo
 from ..demos.svr_v1_demo import SVRV1Demo
 from ..demos.svr_v2_demo import SVRV2Demo
 from ..demos.svr_v3_demo import SVRV3Demo
