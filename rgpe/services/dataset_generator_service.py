@@ -8,13 +8,16 @@ from . import dataset_loader_service
 
 
 def generate_gram_points_dataset() -> None:
+    print("Generating Gram Points...")
     write_gram_points('/app/dataset/gram_points.csv', 0, 100000)
+    print("Done.\n")
 
 
 def download_zeta_zeros() -> None:
     """
     Faz download dos zeros da função zeta de Riemann e salva em CSV.
     """
+    print("Downloading zeta zeros...")
     url = "https://www-users.cse.umn.edu/~odlyzko/zeta_tables/zeros1"
     r = requests.get(url)
     r.raise_for_status()
@@ -28,6 +31,7 @@ def write_distances_dataset() -> None:
     """
     Gera as distâncias entre o zero e o ponto de gram.
     """
+    print("Generating distances dataset...")
     df_zeros = pd.read_csv("/app/dataset/zeta_zeros.csv")
     df_gram  = pd.read_csv("/app/dataset/gram_points.csv")
 
@@ -38,7 +42,7 @@ def write_distances_dataset() -> None:
 
     df = pd.DataFrame({"distance": y})
     df.to_csv("/app/dataset/distances.csv", index=False)
-    print("[OK] Dataset gerado com shape:", df.shape)
+    print(f"[OK] Dataset gerado com shape: {df.shape}\n")
 
 
 def generate_distances_dataset() -> None:
@@ -70,6 +74,8 @@ def generate_o_shank_dataset() -> None:
 
     header = _get_header()
 
+    print("Generating O-Shank dataset...")
+
     for index in range(NUMBER_OF_POINTS):
         gram_point_1 = gram_points[index - 1]
         gram_point_2 = gram_points[index]
@@ -79,3 +85,4 @@ def generate_o_shank_dataset() -> None:
 
     df_features = pd.DataFrame(features, columns=header)
     df_features.to_csv("/app/dataset/o_shank.csv", index=False)
+    print(f"[OK] Dataset gerado com shape: {df_features.shape}\n")
