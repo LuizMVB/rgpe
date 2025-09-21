@@ -18,3 +18,4 @@
 - [Feature Selection Using Genetic Algorithm: Complete Beginner-Friendly Guide](https://medium.com/@ela.markovic/feature-selection-using-genetic-algorithm-complete-beginner-friendly-guide-198496393728)
 - [Sklearn Genetic Opt](https://sklearn-genetic-opt.readthedocs.io/en/stable/api/gafeatureselectioncv.html)
 - [Genetic Algorithm: Complete Guide With Python Implementation](https://www.datacamp.com/tutorial/genetic-algorithm-python)
+- [Time Series](https://www.alura.com.br/artigos/series-temporais)
