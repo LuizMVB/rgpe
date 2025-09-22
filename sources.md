@@ -19,3 +19,4 @@
 - [Sklearn Genetic Opt](https://sklearn-genetic-opt.readthedocs.io/en/stable/api/gafeatureselectioncv.html)
 - [Genetic Algorithm: Complete Guide With Python Implementation](https://www.datacamp.com/tutorial/genetic-algorithm-python)
 - [Time Series](https://www.alura.com.br/artigos/series-temporais)
+- [Time Series - Sazonalidade](https://www.alura.com.br/artigos/series-temporais-tipos-de-sazonalidade)
