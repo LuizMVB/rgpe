@@ -3,17 +3,67 @@ import mpmath as mp
 import numpy as np
 import pandas as pd
 from typing import List
-from ..lib.gram_points.GramPoints import write_gram_points
 from . import dataset_loader_service
 
 
-def generate_gram_points_dataset() -> None:
+def _get_gram_point(n: int, t0: float) -> float:
+    """
+    Calcula o n-ésimo Gram point usando t0 como chute inicial.
+    θ(t) = n * π
+    """
+    f = lambda t: mp.siegeltheta(t) - n * mp.pi
+    return mp.findroot(f, t0)
+
+
+def _get_cogram_point(n: int, t0: float) -> float:
+    """Resolve θ(t) = (n+1/2)π perto de t0 (Gram point g_n usado como chute)."""
+    f = lambda t: mp.siegeltheta(t) - (n + 0.5) * mp.pi
+    return mp.findroot(f, t0)
+
+
+def generate_gram_points_dataset(start: int = 0, end: int = 100_000, seed: float = 7.0) -> None:
+    """
+    Gera um CSV com Gram points de start até end.
+    Usa o Gram point anterior como chute inicial para o próximo.
+    """
     print("Generating Gram Points...")
-    write_gram_points('/app/dataset/gram_points.csv', 0, 100000)
+
+    t0 = mp.mpf(seed)
+    gram_points = []
+
+    for n in range(start, end):
+        gram_point = _get_gram_point(n - 1, t0)
+        gram_points.append((n, gram_point))
+        t0 = gram_point
+
+        if n % 1000 == 0:
+            print(f"Gram Progress: {n / end * 100:.2f}%")
+
+    df = pd.DataFrame(gram_points, columns=["n", "gram_point"])
+    df.to_csv("/app/dataset/gram_points.csv", index=False)
     print("Done.\n")
 
 
-def download_zeta_zeros() -> None:
+def generate_cogram_points_dataset(start: int = 0, end: int = 100_000, seed: float = 7.0) -> None:
+    print("Generating coGram Points...")
+
+    t0 = mp.mpf(seed)
+    gram_points = []
+
+    for n in range(start, end):
+        gram_point = _get_cogram_point(n - 1, t0)
+        gram_points.append((n, gram_point))
+        t0 = gram_point
+
+        if n % 1000 == 0:
+            print(f"coGram Progress: {n / end * 100:.2f}%")
+
+    df = pd.DataFrame(gram_points, columns=["n", "cogram_point"])
+    df.to_csv("/app/dataset/cogram_points.csv", index=False)
+    print("Done.\n")
+
+
+def _download_zeta_zeros() -> None:
     """
     Faz download dos zeros da função zeta de Riemann e salva em CSV.
     """
@@ -27,16 +77,14 @@ def download_zeta_zeros() -> None:
     print(f"[OK] Arquivo salvo: dataset/zeta_zeros.csv com {len(zeros)} zeros.")
 
 
-def write_distances_dataset() -> None:
+def _write_distances_dataset() -> None:
     """
     Gera as distâncias entre o zero e o ponto de gram.
     """
     print("Generating distances dataset...")
-    df_zeros = pd.read_csv("/app/dataset/zeta_zeros.csv")
-    df_gram  = pd.read_csv("/app/dataset/gram_points.csv")
 
-    zeros = df_zeros["zeta_zero"].values
-    gram_points = df_gram["n-th gram point"].values
+    zeros = dataset_loader_service.load_zeta_zeros()
+    gram_points = dataset_loader_service.load_gram_points()
 
     y = zeros - gram_points
 
@@ -46,11 +94,11 @@ def write_distances_dataset() -> None:
 
 
 def generate_distances_dataset() -> None:
-    download_zeta_zeros()
-    write_distances_dataset()
+    _download_zeta_zeros()
+    _write_distances_dataset()
 
 
-def _get_header() -> List[str]:
+def _get_o_shank_dataset_header() -> List[str]:
     header = []
     for n in [1, 2]:
         header.append(f"z_value_{n}")
@@ -59,7 +107,7 @@ def _get_header() -> List[str]:
     return header
 
 
-def _get_features(gram_point: float) -> List[float]:
+def _get_o_shank_features(gram_point: float) -> List[float]:
     features = [mp.siegelz(gram_point)]
     cos_terms = [mp.cos(mp.siegeltheta(gram_point) - gram_point * mp.ln(n)) / mp.sqrt(n) for n in range(1, 11)]
     sin_terms = [mp.sin(mp.siegeltheta(gram_point) - gram_point * mp.ln(n)) / mp.sqrt(n) for n in range(2, 11)]
@@ -72,15 +120,15 @@ def generate_o_shank_dataset() -> None:
 
     NUMBER_OF_POINTS = 10_000
 
-    header = _get_header()
+    header = _get_o_shank_dataset_header()
 
     print("Generating O-Shank dataset...")
 
     for index in range(NUMBER_OF_POINTS):
         gram_point_1 = gram_points[index - 1]
         gram_point_2 = gram_points[index]
-        features_1 = _get_features(gram_point_1)
-        features_2 = _get_features(gram_point_2)
+        features_1 = _get_o_shank_features(gram_point_1)
+        features_2 = _get_o_shank_features(gram_point_2)
         features.append(features_1 + features_2)
 
     df_features = pd.DataFrame(features, columns=header)

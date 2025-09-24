@@ -3,15 +3,20 @@ import numpy as np
 from numpy.typing import NDArray
 
 
-def load_gram_points() -> NDArray:
+def load_zeta_zeros() -> NDArray[float]:
+    df_zeros = pd.read_csv("/app/dataset/zeta_zeros.csv")
+    return df_zeros["zeta_zero"].values
+
+
+def load_gram_points() -> NDArray[float]:
     gram_points_df = pd.read_csv("/app/dataset/gram_points.csv")
-    return gram_points_df["n-th gram point"].values
+    return gram_points_df["gram_point"].values
 
 
 def load_gram_distance_dataset() -> tuple[NDArray[float], NDArray[float]]:
     """
     Load the Gram distance dataset from a CSV file.
-    
+
     Returns:
         X (np.ndarray): Features of the dataset.
         y (np.ndarray): Target values of the dataset.
