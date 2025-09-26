@@ -4,8 +4,8 @@ from rgpe import cli
 
 def main():
     if len(sys.argv) < 2:
-        print("Error")
-        exit(1)
+        cli.display_help()
+        exit(0)
 
     command_key = sys.argv[1]
     args = sys.argv[2:]

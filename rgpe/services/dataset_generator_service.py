@@ -134,3 +134,61 @@ def generate_o_shank_dataset() -> None:
     df_features = pd.DataFrame(features, columns=header)
     df_features.to_csv("/app/dataset/o_shank.csv", index=False)
     print(f"[OK] Dataset gerado com shape: {df_features.shape}\n")
+
+
+def _get_Z_function_terms_features(t: float, max_term: int = 10):
+    """
+    Obtém os termo de 2 até 10 da função Z
+    """
+    theta = mp.siegeltheta(t)
+    out = {}
+    for n in range(2, max_term+1):
+        angle = theta - t * mp.ln(n)
+        term = 2 * mp.cos(angle) / mp.sqrt(n)
+        out[f"z_term_{n}"] = term
+    return out
+
+
+def _lagged(series: pd.Series, max_lag: int, prefix: str) -> pd.DataFrame:
+    df = pd.DataFrame()
+    for k in range(1, max_lag + 1):
+        df[f"{prefix}_lag_{k}"] = pd.Series(series).shift(k)
+    return df
+
+
+def _add_lags(df: pd.DataFrame):
+    df = pd.concat([df, _lagged(df["gram"], 10, "gram")], axis=1)
+    df = pd.concat([df, _lagged(df["z_gram"], 10, "z_gram")], axis=1)
+    df = pd.concat([df, _lagged(df["d"], 25, "d")], axis=1)
+    df = pd.concat([df, _lagged(df["cogram"], 10, "cogram")], axis=1)
+    df = pd.concat([df, _lagged(df["z_cogram"], 15, "z_cogram")], axis=1)
+    df = pd.concat([df, _lagged(df["z_integer"], 10, "z_integer")], axis=1)
+
+
+def generate_j_kampe_dataset() -> None:
+    print("Generating J Kampee dataset...")
+    gram_points = dataset_loader_service.load_gram_points()
+    distances   = dataset_loader_service.load_distances()
+    cogram_points = dataset_loader_service.load_cogram_points()
+
+    n_points = len(gram_points)
+    rows = []
+
+    for i, (gram, cogram, d) in enumerate(zip(gram_points, cogram_points, distances)):
+        row = {
+            "index": i,
+            "gram": gram,
+            "cogram": cogram,
+            "distance": d,
+            "z_gram": mp.siegelz(gram),
+            "z_cogram": mp.siegeltheta(gram),
+        }
+        row.update(_get_Z_function_terms_features(gram))
+        row["z_integer"] = float(mp.siegelz(int(np.floor(gram))))
+        rows.append(row)
+        print(f"i: {i} | Gram: {gram} | Cogram: {cogram} | Distance: {d}")
+
+    df = pd.DataFrame(rows)
+    _add_lags(df)
+    df.to_csv("/app/dataset/j_kampe.csv", index=False)
+    print(f"[OK] Dataset gerado com shape: {df.shape}\n")

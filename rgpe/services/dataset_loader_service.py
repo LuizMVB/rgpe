@@ -13,6 +13,16 @@ def load_gram_points() -> NDArray[float]:
     return gram_points_df["gram_point"].values
 
 
+def load_distances() -> NDArray[float]:
+    df_distances = pd.read_csv("/app/dataset/distances.csv")
+    return df_distances.iloc[:, 0].values
+
+
+def load_cogram_points() -> NDArray[float]:
+    cogram_points_df = pd.read_csv("/app/dataset/cogram_points.csv")
+    return cogram_points_df["cogram_point"].values
+
+
 def load_gram_distance_dataset() -> tuple[NDArray[float], NDArray[float]]:
     """
     Load the Gram distance dataset from a CSV file.
@@ -44,3 +54,7 @@ def load_o_shank_dataset() -> tuple[NDArray[float], NDArray[float]]:
     X = df_features.values
     y = df_distances.iloc[:, 0].values
     return X, y
+
+
+def load_j_kampe_dataset() -> None:
+    pass # TODO: implement
