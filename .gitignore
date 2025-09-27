@@ -1,3 +1,7 @@
+!dataset/.gitkeep
+dataset/*.csv
+
+
 # Python bytecode
 __pycache__/
 *.py[cod]

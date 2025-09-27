@@ -21,4 +21,6 @@ class GenerateDatasetsCommand(Command):
         p_distances.join()
         p_o_shank.join()
 
+        dataset_generator_service.generate_j_kampe_dataset()
+
         print("All datasets generated.\n")

@@ -56,5 +56,8 @@ def load_o_shank_dataset() -> tuple[NDArray[float], NDArray[float]]:
     return X, y
 
 
-def load_j_kampe_dataset() -> None:
-    pass # TODO: implement
+def load_j_kampe_dataset() -> tuple[NDArray[float], NDArray[float]]:
+    df_j_kampe = pd.read_csv("/app/dataset/j_kampe.csv")
+    distances  = load_distances()
+    X = df_j_kampe.values
+    return X, distances

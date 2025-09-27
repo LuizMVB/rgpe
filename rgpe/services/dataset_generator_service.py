@@ -9,14 +9,14 @@ from . import dataset_loader_service
 def _get_gram_point(n: int, t0: float) -> float:
     """
     Calcula o n-ésimo Gram point usando t0 como chute inicial.
-    θ(t) = n * π
+    θ(t) = nπ
     """
     f = lambda t: mp.siegeltheta(t) - n * mp.pi
     return mp.findroot(f, t0)
 
 
 def _get_cogram_point(n: int, t0: float) -> float:
-    """Resolve θ(t) = (n+1/2)π perto de t0 (Gram point g_n usado como chute)."""
+    """Resolve θ(t) = nπ + π/2 perto de t0 (Gram point g_n usado como chute)."""
     f = lambda t: mp.siegeltheta(t) - (n + 0.5) * mp.pi
     return mp.findroot(f, t0)
 
@@ -156,13 +156,14 @@ def _lagged(series: pd.Series, max_lag: int, prefix: str) -> pd.DataFrame:
     return df
 
 
-def _add_lags(df: pd.DataFrame):
-    df = pd.concat([df, _lagged(df["gram"], 10, "gram")], axis=1)
+def _add_lags(original_df: pd.DataFrame) -> pd.DataFrame:
+    df = pd.concat([original_df, _lagged(original_df["gram"], 10, "gram")], axis=1)
     df = pd.concat([df, _lagged(df["z_gram"], 10, "z_gram")], axis=1)
     df = pd.concat([df, _lagged(df["d"], 25, "d")], axis=1)
     df = pd.concat([df, _lagged(df["cogram"], 10, "cogram")], axis=1)
     df = pd.concat([df, _lagged(df["z_cogram"], 15, "z_cogram")], axis=1)
     df = pd.concat([df, _lagged(df["z_integer"], 10, "z_integer")], axis=1)
+    return df
 
 
 def generate_j_kampe_dataset() -> None:
@@ -176,10 +177,9 @@ def generate_j_kampe_dataset() -> None:
 
     for i, (gram, cogram, d) in enumerate(zip(gram_points, cogram_points, distances)):
         row = {
-            "index": i,
             "gram": gram,
             "cogram": cogram,
-            "distance": d,
+            "d": d,
             "z_gram": mp.siegelz(gram),
             "z_cogram": mp.siegeltheta(gram),
         }
@@ -189,6 +189,6 @@ def generate_j_kampe_dataset() -> None:
         print(f"i: {i} | Gram: {gram} | Cogram: {cogram} | Distance: {d}")
 
     df = pd.DataFrame(rows)
-    _add_lags(df)
+    df = _add_lags(df)
     df.to_csv("/app/dataset/j_kampe.csv", index=False)
     print(f"[OK] Dataset gerado com shape: {df.shape}\n")

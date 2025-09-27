@@ -26,5 +26,5 @@ class SVRV3Demo(BaseDemo):
                     kernel="rbf",
                 )
 
-                self.save_results("svr_v3.csv")
-                self.show_results()
+        self.save_results("svr_v3.csv")
+        self.show_results()
