@@ -152,7 +152,7 @@ def _get_Z_function_terms_features(t: float, max_term: int = 10):
 def _lagged(series: pd.Series, max_lag: int, prefix: str) -> pd.DataFrame:
     df = pd.DataFrame()
     for k in range(1, max_lag + 1):
-        df[f"{prefix}_lag_{k}"] = pd.Series(series).shift(k)
+        df[f"{prefix}_lag_{k}"] = series.shift(k)
     return df
 
 
@@ -190,5 +190,6 @@ def generate_j_kampe_dataset() -> None:
 
     df = pd.DataFrame(rows)
     df = _add_lags(df)
+    df = df.drop(columns=["d"])
     df.to_csv("/app/dataset/j_kampe.csv", index=False)
     print(f"[OK] Dataset gerado com shape: {df.shape}\n")
