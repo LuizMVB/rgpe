@@ -1,10 +1,8 @@
 import mpmath as mp
-import numpy as np
 import pandas as pd
 from . import dataset_loader_service
 from . import riemann_service
 from ..utils import get_lagged_dataframe
-
 
 
 def add_lags_to_j_kampe_dataset(original_df: pd.DataFrame) -> pd.DataFrame:
@@ -31,10 +29,10 @@ def generate_j_kampe_dataset(limit: int = 100_000) -> None:
             "cogram": cogram,
             "d": d,
             "z_gram": mp.siegelz(gram),
-            "z_cogram": mp.siegeltheta(gram),
+            "z_cogram": mp.siegelz(cogram),
+            "z_integer": mp.siegelz(i + 1)
         }
         row.update(riemann_service.get_Z_function_terms_features(gram))
-        row["z_integer"] = float(mp.siegelz(int(np.floor(gram))))
         rows.append(row)
         print(f"i: {i} | Gram: {gram} | Cogram: {cogram} | Distance: {d}")
         counter += 1
@@ -44,5 +42,5 @@ def generate_j_kampe_dataset(limit: int = 100_000) -> None:
     df = pd.DataFrame(rows)
     df = add_lags_to_j_kampe_dataset(df)
     df = df.drop(columns=["d"])
-    df.to_csv("/app/dataset/j_kampe.csv", index=False)
+    df.fillna(0).to_csv("/app/dataset/j_kampe.csv", index=False)
     print(f"[OK] Dataset gerado com shape: {df.shape}\n")

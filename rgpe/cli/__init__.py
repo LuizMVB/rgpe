@@ -1,11 +1,11 @@
 from rgpe.commands import Command
 from rgpe.commands.demo_command import DemoCommand
-from rgpe.commands.generate_datasets_command import GenerateDatasetsCommand
+from rgpe.commands.generate_all_datasets_command import GenerateAllDatasetsCommand
 
 
 commands: dict[str, type[Command]] = {
     'demo': DemoCommand,
-    'generate-datasets': GenerateDatasetsCommand,
+    'generate-datasets': GenerateAllDatasetsCommand,
 }
 
 

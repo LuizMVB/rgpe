@@ -131,7 +131,7 @@ def generate_custom_dataset(limit: int = 100_000) -> None:
             "d": d,
             "zero": zero,
             "z_gram": mp.siegelz(gram),
-            "z_cogram": mp.siegeltheta(gram),
+            "z_cogram": mp.siegelz(gram),
         }
         row.update(riemann_service.get_Z_function_terms_features(gram))
         row["z_integer"] = float(mp.siegelz(int(np.floor(gram))))
