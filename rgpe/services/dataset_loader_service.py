@@ -3,15 +3,30 @@ import numpy as np
 from numpy.typing import NDArray
 
 
-def load_gram_points() -> NDArray:
+def load_zeta_zeros() -> NDArray[float]:
+    df_zeros = pd.read_csv("/app/dataset/zeta_zeros.csv")
+    return df_zeros["zeta_zero"].values
+
+
+def load_gram_points() -> NDArray[float]:
     gram_points_df = pd.read_csv("/app/dataset/gram_points.csv")
-    return gram_points_df["n-th gram point"].values
+    return gram_points_df["gram_point"].values
+
+
+def load_distances() -> NDArray[float]:
+    df_distances = pd.read_csv("/app/dataset/distances.csv")
+    return df_distances.iloc[:, 0].values
+
+
+def load_cogram_points() -> NDArray[float]:
+    cogram_points_df = pd.read_csv("/app/dataset/cogram_points.csv")
+    return cogram_points_df["cogram_point"].values
 
 
 def load_gram_distance_dataset() -> tuple[NDArray[float], NDArray[float]]:
     """
     Load the Gram distance dataset from a CSV file.
-    
+
     Returns:
         X (np.ndarray): Features of the dataset.
         y (np.ndarray): Target values of the dataset.
@@ -39,3 +54,10 @@ def load_o_shank_dataset() -> tuple[NDArray[float], NDArray[float]]:
     X = df_features.values
     y = df_distances.iloc[:, 0].values
     return X, y
+
+
+def load_j_kampe_dataset() -> tuple[NDArray[float], NDArray[float]]:
+    df_j_kampe = pd.read_csv("/app/dataset/j_kampe.csv")
+    distances  = load_distances()
+    X = df_j_kampe.values
+    return X, distances
